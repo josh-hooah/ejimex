@@ -181,11 +181,17 @@ function App() {
   };
 
 
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  //   if (page !== 'home') {
+  //     setPendingSection(sectionId);
+  //     setPage('home');
+  //     return;
+  //   }
+
+  //   const section = document.getElementById(sectionId);
+  //   if (section) {
+  //     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  //   }
+  // };
 
   useEffect(() => {
     if (page === 'home' && pendingSection) {
