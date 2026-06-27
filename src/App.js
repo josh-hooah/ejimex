@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 const categories = [
@@ -138,6 +138,8 @@ function App() {
   const [page, setPage] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState('phones');
   const [customerName, setCustomerName] = useState('');
+  const [pendingSection, setPendingSection] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const category = useMemo(
     () => categories.find((item) => item.id === selectedCategory) || categories[0],
@@ -150,9 +152,56 @@ function App() {
   );
 
   const buildWhatsappLink = (product) => {
-    const message = `Hello Ejimex Tech,%0a%0aI would like to shop this gadget:%0aName: ${product.name}%0aPrice: ${product.price}%0aImage: ${product.image}%0aCustomer: ${customerName || '________________'}%0a%0aPlease contact me with details.`;
-    return `https://wa.me/${whatsappPhone}?text=${message}`;
+    const message = `Hello Ejimex Tech,\n\nI would like to shop this gadget:\nName: ${product.name}\nPrice: ${product.price}\nImage: ${product.image}\nCustomer: ${customerName || '________________'}\n\nPlease contact me with details.`;
+    return `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
   };
+
+  // Repair form state
+  const [repairUser, setRepairUser] = useState('');
+  const [repairGadget, setRepairGadget] = useState('');
+  const [repairIssues, setRepairIssues] = useState('');
+  const [repairNote, setRepairNote] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateRepair = () => {
+    const errors = {};
+    if (!repairUser.trim()) errors.repairUser = 'Username is required';
+    if (!repairGadget.trim()) errors.repairGadget = 'Gadget name is required';
+    if (!repairIssues.trim()) errors.repairIssues = 'Describe the issue';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const submitRepair = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!validateRepair()) return;
+    const message = `Repair request for Ejimex Tech:\n\nUser: ${repairUser}\nGadget: ${repairGadget}\nIssues: ${repairIssues}\nNote: ${repairNote || '[none]'}\n\nPlease reach out with an estimate and ETA.`;
+    const url = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
+  const goToSection = (sectionId) => {
+    if (page !== 'home') {
+      setPendingSection(sectionId);
+      setPage('home');
+      return;
+    }
+
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  useEffect(() => {
+    if (page === 'home' && pendingSection) {
+      const section = document.getElementById(pendingSection);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      setPendingSection(null);
+    }
+  }, [page, pendingSection]);
 
   const renderHome = () => {
     return (
@@ -169,9 +218,9 @@ function App() {
               <button className="btn btn-primary" onClick={() => setPage('shop')}>
                 Shop gadgets
               </button>
-              <a className="btn btn-secondary" href="#repairs">
+              <button className="btn btn-secondary" onClick={() => setPage('repair')}>
                 Request repair
-              </a>
+              </button>
             </div>
           </div>
 
@@ -303,7 +352,7 @@ function App() {
               </div>
               <div>
                 <strong>Phone</strong>
-                <p>+234 800 123 4567</p>
+                <p>+234 907 589 0689</p>
               </div>
             </div>
             <a className="btn btn-primary" href="mailto:support@ejimex.tech">
@@ -393,12 +442,70 @@ function App() {
     );
   };
 
+  const renderRepair = () => {
+    return (
+      <section className="section repair-page fade-up">
+        <div className="shop-header">
+          <div>
+            <span className="eyebrow">Request a repair</span>
+            <h2>Tell us about your gadget and the issues you're facing.</h2>
+            <p>All fields are required except the side note. We'll contact you with a quote.</p>
+          </div>
+          <div>
+            <button className="btn btn-secondary" onClick={() => setPage('home')}>Back to home</button>
+          </div>
+        </div>
+
+        <form className="repair-form" onSubmit={submitRepair} noValidate>
+          <div className="form-row">
+            <label>
+              Username
+              <input value={repairUser} onChange={(e) => setRepairUser(e.target.value)} />
+              {formErrors.repairUser && <div className="field-error">{formErrors.repairUser}</div>}
+            </label>
+            <label>
+              Gadget name
+              <input value={repairGadget} onChange={(e) => setRepairGadget(e.target.value)} />
+              {formErrors.repairGadget && <div className="field-error">{formErrors.repairGadget}</div>}
+            </label>
+          </div>
+
+          <div className="form-row">
+            <label style={{ width: '100%' }}>
+              Issues with the gadget
+              <textarea value={repairIssues} onChange={(e) => setRepairIssues(e.target.value)} rows={5} />
+              {formErrors.repairIssues && <div className="field-error">{formErrors.repairIssues}</div>}
+            </label>
+          </div>
+
+          <div className="form-row">
+            <label style={{ width: '100%' }}>
+              Side note (optional)
+              <input value={repairNote} onChange={(e) => setRepairNote(e.target.value)} />
+            </label>
+          </div>
+
+          <div className="form-row submit-row">
+            <button className="btn btn-primary" type="submit">Send via WhatsApp</button>
+          </div>
+        </form>
+      </section>
+    );
+  };
+
   return (
     <div className="App">
       <div className="page-shell">
         <nav className="nav-bar">
-          <div className="brand">Ejimex Tech</div>
-          <div className="nav-links">
+           <div className="brand">Ejimex Tech</div>
+          <div className="nav-link">
+          <h2
+          className="comp"
+          onClick={() => setMenuOpen(!menuOpen)}
+           >
+  🧭
+          </h2>
+           <div className={`nav-links ${menuOpen ? "active" : ""}`}>
             <button className="nav-link" onClick={() => setPage('home')}>
               Home
             </button>
@@ -408,15 +515,14 @@ function App() {
             <a href="#services">Services</a>
             <a href="#contact">Contact</a>
           </div>
+          </div>
         </nav>
 
-        {page === 'home' ? renderHome() : renderShop()}
+        {page === 'home' ? renderHome() : page === 'shop' ? renderShop() : renderRepair()}
 
-        {page === 'home' && (
-          <footer className="footer">
-            <p>© 2026 Ejimex Tech. All rights reserved.</p>
-          </footer>
-        )}
+        <footer className="footer">
+          <p>© 2026 Ejimex Tech. All rights reserved.</p>
+        </footer>
       </div>
     </div>
   );
