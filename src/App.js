@@ -348,7 +348,7 @@ function App() {
             <div className="contact-details">
               <div>
                 <strong>Email</strong>
-                <p>support@ejimex.tech</p>
+                <p>ejimyike@gmail.comtech</p>
               </div>
               <div>
                 <strong>Phone</strong>
@@ -497,7 +497,7 @@ function App() {
     <div className="App">
       <div className="page-shell">
         <nav className="nav-bar">
-           <div className="brand">Ejimex Tech</div>
+           <div className="brand"> Ejimex Gadgets and Hub</div>
           <div className="nav-link">
           <h2
           className="comp"
