@@ -180,12 +180,6 @@ function App() {
     window.open(url, '_blank');
   };
 
-  const goToSection = (sectionId) => {
-    if (page !== 'home') {
-      setPendingSection(sectionId);
-      setPage('home');
-      return;
-    }
 
     const section = document.getElementById(sectionId);
     if (section) {
